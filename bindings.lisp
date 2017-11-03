@@ -19,7 +19,7 @@
 ;;------------------------------------------------------------------------------
 ;; (/usr/include/ncurses.h:421:8 /usr/include/ncurses.h:372:16
 ;;    /usr/include/ncurses.h:372:16
-(defcstruct win-st ;; win_st
+(defcstruct win ;; win_st
   (_cury  :SHORT) ;; _cury #<VBASE :short>
   (_curx  :SHORT) ;; _curx #<VBASE :short>
   (_maxy  :SHORT) ;; _maxy #<VBASE :short>
@@ -44,11 +44,11 @@
   (_regbottom  :SHORT) ;; _regbottom #<VBASE :short>
   (_parx  :INT) ;; _parx #<VBASE :int>
   (_pary  :INT) ;; _pary #<VBASE :int>
-  (_parent  (:pointer (:struct win-st))) ;; _parent #<POINTER #<typedef WINDOW>>
+  (_parent  (:pointer (:struct win))) ;; _parent #<POINTER #<typedef WINDOW>>
   (_pad  (:struct pdat)) ;; _pad #<struct pdat>
   (_yoffset  :SHORT) ;; _yoffset #<VBASE :short>
 )
-(export 'win-st)
+(export 'win)
 
 
 
@@ -95,7 +95,7 @@
      (xdefcfun (,(format nil "~A" cname) ,(intern (format nil "~A" lname))) ,ret
 	       ,@parmlist)
      (xdefcfun (,(format nil "w~A" cname) ,(intern (format nil "W~A" lname))) ,ret
-	       (win   (:pointer (:struct win-st))) 
+	       (win   (:pointer (:struct win))) 
 	       ,@parmlist)
      (when ,mv
        (xdefcfun (,(format nil "mv~A" cname) ,(intern (format nil "MV~A" lname))) ,ret
@@ -103,7 +103,7 @@
 		 (x  :INT) 
 		 ,@parmlist)
        (xdefcfun (,(format nil "mvw~A" cname) ,(intern (format nil "MVW~A" lname))) ,ret
-		 (win   (:pointer (:struct win-st)))
+		 (win   (:pointer (:struct win)))
 		 (y  :INT) ;;  #<VBASE :int>
 		 (x  :INT) ;;  #<VBASE :int>
 		 ,@parmlist))
@@ -132,7 +132,7 @@
 ;; Initialization and control
 ;; http://invisible-island.net/ncurses/man/curs_initscr.3x.html
 ;;------------------------------------------------------------------------------
-(xdefcfun ("initscr"  initscr) (:pointer(:struct win-st)))
+(xdefcfun ("initscr"  initscr) (:pointer(:struct win)))
 (xdefcfun ("endwin"   endwin) :void)
 (xdefcfun ("isendwin" isendwin) (:BOOL))
 
@@ -160,21 +160,21 @@
 )
 
 (defcfun ("intrflush" intrflush) :INT
-  (win   (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf    (:BOOL)) ;;  #<VBASE :_Bool>
 )
 
 (xdefcfun ("keypad"    keypad) :INT
-  (win   (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf    (:BOOL)) ;;  #<VBASE :_Bool>
 )
 (xdefcfun ("meta"      meta) :INT
-  (win   (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf    (:BOOL)) ;;  #<VBASE :_Bool>
   )
 
 (xdefcfun ("nodelay"   nodelay) :INT
-  (win   (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf    (:BOOL)) ;;  #<VBASE :_Bool>
 )
 
@@ -188,11 +188,11 @@
   )
 
 (xdefcfun ("wtimeout"  wtimeout) :INT
-  (win   (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (delay    (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("notimeout"  notimeout) :INT
-  (win   (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (delay    (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("typeahead"  typeahead) :INT
@@ -209,9 +209,9 @@
 (xdefcfun ("doupdate"     doupdate) :int)
 
 (xdefcfun ("redrawwin"    redrawwin) :int
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("wredrawln"    wredrawln) :int
-	  (win  (:pointer (:struct win-st)))
+	  (win  (:pointer (:struct win)))
 	  (beg  :int)
 	  (cnt  :int))
 ;;==============================================================================
@@ -228,21 +228,21 @@
   (x  :INT) ;;  #<VBASE :int>
   )
 (xdefcfun ("wmove"        wmove) :int
-  (win  (:pointer (:struct win-st)))
+  (win  (:pointer (:struct win)))
   (y  :INT) ;;  #<VBASE :int>
   (x  :INT)) ;;  #<VBASE :int>
 
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_legacy.3x.html
-(xdefcfun ("getattrs" getattrs) :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getbegx"  getbegx)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getbegy"  getbegy)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getcurx"  getcurx)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getcury"  getcury)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getmaxx"  getmaxx)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getmaxy"  getmaxy)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getparx"  getparx)  :int  (win  (:pointer (:struct win-st))))
-(xdefcfun ("getpary"  getpary)  :int  (win  (:pointer (:struct win-st))))
+(xdefcfun ("getattrs" getattrs) :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getbegx"  getbegx)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getbegy"  getbegy)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getcurx"  getcurx)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getcury"  getcury)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getmaxx"  getmaxx)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getmaxy"  getmaxy)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getparx"  getparx)  :int  (win  (:pointer (:struct win))))
+(xdefcfun ("getpary"  getpary)  :int  (win  (:pointer (:struct win))))
 
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_addstr.3x.html
@@ -272,7 +272,7 @@
     (ls :ulong) (rs :ulong) (ts :ulong) (bs :ulong)
     (tl :ulong) (tr :ulong) (bl :ulong) (br :ulong))
 (xdefcfun ("box" box) :int
-	  (win  (:pointer (:struct win-st)))
+	  (win  (:pointer (:struct win)))
 	  (verch :ulong)
 	  (horch :ulong))
 (defcurse ("vline" vline) (ch :ulong))
@@ -345,7 +345,7 @@
 (defcurse ("bkgdset" bkgdset :mv nil :ret :void)  (ch :ulong))
 (defcurse ("bkgd"    bkgd :mv nil :ret  :void) (ch :ulong))
 (xdefcfun ("getbkgd" getbkgd) :ULONG
-   (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+   (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
 )
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_termattrs.3x.html
@@ -366,6 +366,7 @@
 	  (cnt  :SHORT)  (fg   :SHORT)  (bg   :SHORT))
 (xdefcfun ("init_color"  init-color) :INT
 	  (cnt  :SHORT)  (r :SHORT)  (g :SHORT) (b :SHORT))
+;;------------------------------------------------------------------------------
 (defcfun ("color_content" &color-content) :INT
   ;; see: (/usr/include/ncurses.h:607:28)
   (index  :SHORT) ;;  #<VBASE :short>
@@ -377,16 +378,15 @@
   (with-foreign-objects ((r :short) (g :short) (b :short))
     (&color-content color-index r g b)
     (values (mem-ref r :short) (mem-ref g :short) (mem-ref b :short))))
-
+;;------------------------------------------------------------------------------
 (defcfun ("pair_content" &pair-content) :INT
   ;; see: (/usr/include/ncurses.h:732:28)
   (index  :SHORT) (fg  (:pointer :SHORT))  (bg (:pointer :SHORT)) )
-
 (xdefun pair-content (pair-index)
   (with-foreign-objects ((fg :short) (bg :short) )
     (&pair-content pair-index fg bg)
     (values (mem-ref fg :short) (mem-ref bg :short) )))
-
+;;------------------------------------------------------------------------------
 (xdefcfun ("COLOR_PAIR"  color-pair) :INT  (pair-index  :INT) )
 (xdefcfun ("PAIR_NUMBER" pair-number) :INT  (attrs  :INT) )
 ;;http://invisible-island.net/ncurses/man/default_colors.3x.html
@@ -396,17 +396,17 @@
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_overlay.3x.html
 (xdefcfun ("overlay" overlay) :INT
-  (src  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
-  (dst  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (src  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (dst  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   )
 (xdefcfun ("overwrite" overwrite) :INT
-  (src  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
-  (dst  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (src  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (dst  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
 )
 (xdefcfun ("copywin" copywin) :INT
   ;; see: (/usr/include/ncurses.h:610:28)
-  (src  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
-  (dst  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (src  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (dst  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (sminrow  :INT) ;;  #<VBASE :int>
   (smincol  :INT) ;;  #<VBASE :int>
   (dminrow :INT) ;;  #<VBASE :int>
@@ -424,7 +424,7 @@
 (xdefcfun ("resetty" resetty) :INT)
 (xdefcfun ("savetty" savetty) :INT)
 
-(xdefcfun ("ripoffline" &ipoffline) :INT
+(xdefcfun ("ripoffline" ripoffline) :INT
   (line  :INT) ;;  #<VBASE :int>
   (init  :POINTER) ;;  #<VBASE :function-pointer>;; TODO: fix callback
   )
@@ -432,76 +432,77 @@
 (xdefcfun ("napms" napms) :INT  (ms    :INT))
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_window.3x.html
-(xdefcfun ("newwin" newwin) (:pointer (:struct win-st))
+(xdefcfun ("newwin" newwin) (:pointer (:struct win))
   ;; see: (/usr/include/ncurses.h:721:33)
   (nlines  :INT) (ncols :int) (y :int) (x :int))
-(xdefcfun ("delwin" delwin) :INT (win  (:pointer (:struct win-st))) )
+(xdefcfun ("delwin" delwin) :INT (win  (:pointer (:struct win))) )
 (xdefcfun ("mvwin" mvwin) :int
-	  (win (:pointer (:struct win-st)))
+	  (win (:pointer (:struct win)))
 	  (y :int) (x :int))
-(xdefcfun ("subwin" subwin) (:pointer (:struct win-st))
-	  (win (:pointer (:struct win-st)))
+(xdefcfun ("subwin" subwin) (:pointer (:struct win))
+	  (win (:pointer (:struct win)))
   (nlines  :INT) (ncols :int) (y :int) (x :int))
-(xdefcfun ("derwin" derwin) (:pointer (:struct win-st))
-	  (win (:pointer (:struct win-st)))
+(xdefcfun ("derwin" derwin) (:pointer (:struct win))
+	  (win (:pointer (:struct win)))
   (nlines  :INT) (ncols :int) (off-y :int) (off-x :int))
 (xdefcfun ("mvderwin" mvderwin) :int
-	  (win (:pointer (:struct win-st)))
+	  (win (:pointer (:struct win)))
 	  (y :int) (x :int))
-(xdefcfun ("dupwin" dupwin) (:pointer (:struct win-st))
-	  (win (:pointer (:struct win-st))))
+(xdefcfun ("dupwin" dupwin) (:pointer (:struct win))
+	  (win (:pointer (:struct win))))
 (xdefcfun ("wsyncup" wsyncup) :void
-	  (win (:pointer (:struct win-st))))
+	  (win (:pointer (:struct win))))
 (xdefcfun ("syncok" syncok) :int
-	  (win (:pointer (:struct win-st)))
+	  (win (:pointer (:struct win)))
 	  (bf :BOOL))
 (xdefcfun ("wcursyncup" wcursyncup) :void
-	  (win (:pointer (:struct win-st))))
+	  (win (:pointer (:struct win))))
 (xdefcfun ("wsyncdown" wsyncdown) :void
-	  (win (:pointer (:struct win-st))))
+	  (win (:pointer (:struct win))))
 ;;http://invisible-island.net/ncurses/man/wresize.3x.html
 (xdefcfun ("wresize" wresize) :INT
-  (win  (:pointer (:struct win-st))) 
+  (win  (:pointer (:struct win))) 
   (y  :INT)  (x  :INT)   )
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_opaque.3x.html
 (xdefcfun ("is_cleared" is-cleared) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_idcok" is-idcok) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_idlok" is-idlok) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_immedok" is-immedok) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_keypad" is-keypad) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_leavok" is-leavok) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_nodelay" is-nodelay) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_notimeout" is-notimeout) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_pad" is-pad) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_scrollock" is-scrollock) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_subwin" is-subwin) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
+	  (win  (:pointer (:struct win))))
 (xdefcfun ("is_syncok" is-syncok) (:BOOL)
-	  (win  (:pointer (:struct win-st))))
-(xdefcfun ("wgetparent" wgetparent) (:pointer (:struct win-st))
-	  (win  (:pointer (:struct win-st))) )
+	  (win  (:pointer (:struct win))))
+(xdefcfun ("wgetparent" wgetparent) (:pointer (:struct win))
+	  (win  (:pointer (:struct win))) )
 (xdefcfun ("wgetdelay" wgetdelay) :int
-	  (win  (:pointer (:struct win-st))) )
+	  (win  (:pointer (:struct win))) )
+;;------------------------------------------------------------------------------
 (xdefcfun ("wgetsrcreg" &wgetsrcreg) :int
-	  (win  (:pointer (:struct win-st)))
+	  (win  (:pointer (:struct win)))
 	  (top (:pointer :int))
 	  (bottom (:pointer :int)))
 (xdefun wgetsrcreg (win)
   (with-foreign-objects ((top :int) (bottom :int))
     (&wgetsrcreg win top bottom)
     (values (mem-ref top :int) (mem-ref bottom :int))))
-
+;;------------------------------------------------------------------------------
 
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_terminfo.3x.html
@@ -534,76 +535,76 @@
 (xdefcfun ("tiparm"    tiparm)    :string (capname :string) &rest)
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_touch.3x.html
-(xdefcfun ("touchwin" touchwin) :INT (win  (:pointer (:struct win-st))) )
+(xdefcfun ("touchwin" touchwin) :INT (win  (:pointer (:struct win))) )
 (xdefcfun ("touchline" touchline) :INT
-  (win  (:pointer (:struct win-st)))
+  (win  (:pointer (:struct win)))
   (start :int)
   (cnt   :int))
-(xdefcfun ("untouchwin" untouchwin) :INT (win  (:pointer (:struct win-st))) )
+(xdefcfun ("untouchwin" untouchwin) :INT (win  (:pointer (:struct win))) )
 (xdefcfun ("wtouchln" wtouchln) :INT
 	  "changed: 1=changed 0=not"
-  (win  (:pointer (:struct win-st)))
+  (win  (:pointer (:struct win)))
   (start :int)
   (cnt   :int)
   (changed :int))
 (xdefcfun ("is_linetouched" is-linetouched) (:BOOL)
   ;; see: (/usr/include/ncurses.h:658:29)
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (line  :INT) ;;  #<VBASE :int>
   )
 
 (xdefcfun ("is_wintouched" is-wintouched) (:BOOL)
   ;; see: (/usr/include/ncurses.h:658:29)
-  (win  (:pointer (:struct win-st))))
+  (win  (:pointer (:struct win))))
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_outopts.3x.html
 (xdefcfun ("clearok" clearidlok) :INT
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf  (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("idlok" idlok) :INT
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf  (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("idcok" idcok) :INT
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf  (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("immedok" immedok) :INT
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf  (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("leaveok" leaveok) :INT
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf  (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (defcurse ("setscrreg" setscrreg :mv nil) (top :int) (bot :int))
 
 (xdefcfun ("scrollok" scrollok) :INT
-  (win  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (win  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (bf  (:BOOL)) ;;  #<VBASE :_Bool>
   )
 (xdefcfun ("nl" nl) :INT)
 (xdefcfun ("nonl" nonl) :INT)
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_pad.3x.html
-(xdefcfun ("newpad" newpad) (:pointer (:struct win-st))
+(xdefcfun ("newpad" newpad) (:pointer (:struct win))
 	  (lines :int) (columns :int))
-(xdefcfun ("subpad" subpad) (:pointer (:struct win-st))
-	  (orig (:pointer (:struct win-st)))
+(xdefcfun ("subpad" subpad) (:pointer (:struct win))
+	  (orig (:pointer (:struct win)))
 	  (nlines  :INT) (ncols :int) (y :int) (x :int))
 (xdefcfun ("prefresh" prefresh):int
-	  (pad (:pointer (:struct win-st)))
+	  (pad (:pointer (:struct win)))
 	  (py :INT) (px :int)
 	  (sy1 :int) (sx1 :int)
 	  (sy2 :int) (sx2 :int))
 (xdefcfun ("pnoutrefresh" pnoutrefresh):int
-	  (pad (:pointer (:struct win-st)))
+	  (pad (:pointer (:struct win)))
 	  (py :INT) (px :int)
 	  (sy1 :int) (sx1 :int)
 	  (sy2 :int) (sx2 :int))
-(xdefcfun ("pechochar" &pechochar) :INT
-  (pad  (:pointer (:struct win-st)))
+(xdefcfun ("pechochar" pechochar) :INT
+  (pad  (:pointer (:struct win)))
   (wch :ULONG) )
 
 ;;==============================================================================
@@ -619,9 +620,9 @@
 (xdefcfun ("use_env" use-env) :VOID (flag :bool))
 (xdefcfun ("use_tioctl" use-tioctl) :VOID (flag :bool))
 (xdefcfun ("putwin" putwin):int
-	  (win (:pointer (:struct win-st)))
+	  (win (:pointer (:struct win)))
 	  (file :pointer ))
-(xdefcfun ("getwin" getwin) (:pointer (:struct win-st))
+(xdefcfun ("getwin" getwin) (:pointer (:struct win))
 	  (file :pointer ))
 (xdefcfun ("delay_output" delay-output) :INT
 	  (ms  :INT))
@@ -639,7 +640,7 @@
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_scroll.3x.html
 (xdefcfun ("scroll" scroll) :INT
-  (win  (:pointer (:struct win-st))) )
+  (win  (:pointer (:struct win))) )
 
 (defcurse ("scrl" scrl) (by :int))
 ;;==============================================================================
@@ -706,7 +707,7 @@
 (xdefcfun ("key_defined" key-defined) :INT
 	  (definition :string) )
 ;;http://invisible-island.net/ncurses/man/keyok.3x.html
-(xdefcfun ("keyok" &keyok) :INT
+(xdefcfun ("keyok" keyok) :INT
 	  (keycode :INT) (enable :BOOL))
 
 ;;http://invisible-island.net/ncurses/man/legacy_coding.3x.html
@@ -724,6 +725,7 @@
 (export 'mevent)
 
 (xdefcfun ("has_mouse" has-mouse) (:BOOL))
+;;------------------------------------------------------------------------------
 (xdefcfun ("getmouse" &getmouse) :INT
 	  (pmevent  (:pointer (:struct mevent))))
 (xdefun getmouse ()
@@ -731,7 +733,7 @@
 	  (&getmouse mev)
 	  (with-foreign-slots ((id x y z) mev (:struct mevent))
 	    (values x y z id))))
-
+;;------------------------------------------------------------------------------
 (defcfun ("ungetmouse" &ungetmouse) :INT
   ;; see: (/usr/include/ncurses.h:1623:32)
   (pmevent  (:pointer (:struct mevent))))
@@ -741,16 +743,16 @@
   (oldmask  (:pointer :ULONG))   )
 
 (xdefcfun ("wenclose" wenclose) (:BOOL)
-  (win  (:pointer (:struct win-st))) 
+  (win  (:pointer (:struct win))) 
   (y  :INT)  (x  :INT)  )
 
-(defcfun ("mouse_trafo" &mouse-trafo) (:BOOL)
+(defcfun ("mouse_trafo" mouse-trafo) (:BOOL)
   ;; see: (/usr/include/ncurses.h:1628:32)
   (py (:pointer :INT))  (px (:pointer :INT))
   (to-screen :BOOL) )
 
-(defcfun ("wmouse_trafo" &wmouse-trafo) (:BOOL)
-  (win  (:pointer (:struct win-st))) 
+(defcfun ("wmouse_trafo" wmouse-trafo) (:BOOL)
+  (win  (:pointer (:struct win))) 
   (py (:pointer :INT))  (px (:pointer :INT))
   (to-screen :BOOL) )
 
@@ -803,7 +805,7 @@
 (declaim (inline &use-window))
 (defcfun ("use_window" &use-window) :INT
   ;; see: (/usr/include/ncurses.h:917:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :POINTER) ;;  #<typedef NCURSES_WINDOW_CB>
   (arg3  (:pointer :VOID)) ;;  #<POINTER #<VBASE :void>>
 )
@@ -864,7 +866,7 @@
 (declaim (inline &wscanw))
 (defcfun ("wscanw" &wscanw) :INT
   ;; see: (/usr/include/ncurses.h:844:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
 )
 (export '&wscanw)
@@ -877,7 +879,7 @@
 (declaim (inline &winstr))
 (defcfun ("winstr" &winstr) :INT
   ;; see: (/usr/include/ncurses.h:837:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
 )
 (export '&winstr)
@@ -892,7 +894,7 @@
 (declaim (inline &winsch))
 (defcfun ("winsch" &winsch) :INT
   ;; see: (/usr/include/ncurses.h:832:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :ULONG) ;;  #<typedef chtype>
 )
 (export '&winsch)
@@ -904,7 +906,7 @@
 (declaim (inline &winnstr))
 (defcfun ("winnstr" &winnstr) :INT
   ;; see: (/usr/include/ncurses.h:831:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
   (arg3  :INT) ;;  #<VBASE :int>
 )
@@ -917,7 +919,7 @@
 (declaim (inline &winchstr))
 (defcfun ("winchstr" &winchstr) :INT
   ;; see: (/usr/include/ncurses.h:830:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :ULONG)) ;;  #<POINTER #<typedef chtype>>
 )
 (export '&winchstr)
@@ -929,7 +931,7 @@
 (declaim (inline &winchnstr))
 (defcfun ("winchnstr" &winchnstr) :INT
   ;; see: (/usr/include/ncurses.h:829:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :ULONG)) ;;  #<POINTER #<typedef chtype>>
   (arg3  :INT) ;;  #<VBASE :int>
 )
@@ -941,7 +943,7 @@
 (declaim (inline &wgetstr))
 (defcfun ("wgetstr" &wgetstr) :INT
   ;; see: (/usr/include/ncurses.h:826:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
 )
 (export '&wgetstr)
@@ -953,7 +955,7 @@
 (declaim (inline &wgetnstr))
 (defcfun ("wgetnstr" &wgetnstr) :INT
   ;; see: (/usr/include/ncurses.h:825:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
   (arg3  :INT) ;;  #<VBASE :int>
 )
@@ -970,7 +972,7 @@
 (declaim (inline &vw-scanw))
 (defcfun ("vw_scanw" &vw-scanw) :INT
   ;; see: (/usr/include/ncurses.h:798:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
   (arg3  :POINTER) ;;  #<typedef va_list>
 )
@@ -982,7 +984,7 @@
 (declaim (inline &vwscanw))
 (defcfun ("vwscanw" &vwscanw) :INT
   ;; see: (/usr/include/ncurses.h:797:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
   (arg3  :POINTER) ;;  #<typedef va_list>
 )
@@ -1006,7 +1008,7 @@
 (declaim (inline &mvwscanw))
 (defcfun ("mvwscanw" &mvwscanw) :INT
   ;; see: (/usr/include/ncurses.h:715:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
@@ -1021,7 +1023,7 @@
 (declaim (inline &mvwinstr))
 (defcfun ("mvwinstr" &mvwinstr) :INT
   ;; see: (/usr/include/ncurses.h:712:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
@@ -1035,7 +1037,7 @@
 (declaim (inline &mvwinsch))
 (defcfun ("mvwinsch" &mvwinsch) :INT
   ;; see: (/usr/include/ncurses.h:709:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  :ULONG) ;;  #<typedef chtype>
@@ -1049,7 +1051,7 @@
 (declaim (inline &mvwinnstr))
 (defcfun ("mvwinnstr" &mvwinnstr) :INT
   ;; see: (/usr/include/ncurses.h:708:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
@@ -1064,7 +1066,7 @@
 (declaim (inline &mvwinchstr))
 (defcfun ("mvwinchstr" &mvwinchstr) :INT
   ;; see: (/usr/include/ncurses.h:707:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :ULONG)) ;;  #<POINTER #<typedef chtype>>
@@ -1078,7 +1080,7 @@
 (declaim (inline &mvwinchnstr))
 (defcfun ("mvwinchnstr" &mvwinchnstr) :INT
   ;; see: (/usr/include/ncurses.h:706:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :ULONG)) ;;  #<POINTER #<typedef chtype>>
@@ -1094,7 +1096,7 @@
 (declaim (inline &mvwgetstr))
 (defcfun ("mvwgetstr" &mvwgetstr) :INT
   ;; see: (/usr/include/ncurses.h:702:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
@@ -1108,7 +1110,7 @@
 (declaim (inline &mvwgetnstr))
 (defcfun ("mvwgetnstr" &mvwgetnstr) :INT
   ;; see: (/usr/include/ncurses.h:701:28)
-  (arg1  (:pointer (:struct win-st))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
   (arg2  :INT) ;;  #<VBASE :int>
   (arg3  :INT) ;;  #<VBASE :int>
   (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
