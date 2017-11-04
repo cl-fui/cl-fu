@@ -6,8 +6,21 @@ It provides low-level bindings (function names prefixed with &) as well as a lis
 
 ## Status
 
-03-Nov-2017 - Active Development...
-Most functions are there, although not particularly well tested.
+03-Nov-2017 - Implementation fairly complete - testing.
+
+## Notes
+
+- printw functions use a c-style format string, but require cffi types for parameters.
+```(printf "Hello number %d" :int 3)```
+- \n and other escapes do not seem to work (priority med)
+
+## Not Implemented 
+
+While the goal is a full implementation, a decision was made to not implement the following:
+
+- Input functions without a count - such as getstr.  Use getnstr, etc.
+- Scan functions - not particularly useful...(priority low)
+- va_list versions of functions (priority low)
 
 ## Quick start
 

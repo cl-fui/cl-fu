@@ -4,56 +4,8 @@
 (in-package #:cl-fu)
 
 
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:459:9 /usr/include/ncurses.h:459:9)
-(defcstruct pdat ;; pdat
-  (_pad_y  :SHORT) ;; _pad_y #<VBASE :short>
-  (_pad_x  :SHORT) ;; _pad_x #<VBASE :short>
-  (_pad_top  :SHORT) ;; _pad_top #<VBASE :short>
-  (_pad_left  :SHORT) ;; _pad_left #<VBASE :short>
-  (_pad_bottom  :SHORT) ;; _pad_bottom #<VBASE :short>
-  (_pad_right  :SHORT) ;; _pad_right #<VBASE :short>
-)
-(export 'pdat)
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:421:8 /usr/include/ncurses.h:372:16
-;;    /usr/include/ncurses.h:372:16
-(defcstruct win ;; win_st
-  (_cury  :SHORT) ;; _cury #<VBASE :short>
-  (_curx  :SHORT) ;; _curx #<VBASE :short>
-  (_maxy  :SHORT) ;; _maxy #<VBASE :short>
-  (_maxx  :SHORT) ;; _maxx #<VBASE :short>
-  (_begy  :SHORT) ;; _begy #<VBASE :short>
-  (_begx  :SHORT) ;; _begx #<VBASE :short>
-  (_flags  :SHORT) ;; _flags #<VBASE :short>
-  (_attrs  :ULONG) ;; _attrs #<typedef attr_t>
-  (_bkgd  :ULONG) ;; _bkgd #<typedef chtype>
-  (_notimeout  (:BOOL)) ;; _notimeout #<VBASE :_Bool>
-  (_clear  (:BOOL)) ;; _clear #<VBASE :_Bool>
-  (_leaveok  (:BOOL)) ;; _leaveok #<VBASE :_Bool>
-  (_scroll  (:BOOL)) ;; _scroll #<VBASE :_Bool>
-  (_idlok  (:BOOL)) ;; _idlok #<VBASE :_Bool>
-  (_idcok  (:BOOL)) ;; _idcok #<VBASE :_Bool>
-  (_immed  (:BOOL)) ;; _immed #<VBASE :_Bool>
-  (_sync  (:BOOL)) ;; _sync #<VBASE :_Bool>
-  (_use_keypad  (:BOOL)) ;; _use_keypad #<VBASE :_Bool>
-  (_delay  :INT) ;; _delay #<VBASE :int>
-  (_line  :pointer ) ;; _line #<POINTER #<struct ldat>>
-  (_regtop  :SHORT) ;; _regtop #<VBASE :short>
-  (_regbottom  :SHORT) ;; _regbottom #<VBASE :short>
-  (_parx  :INT) ;; _parx #<VBASE :int>
-  (_pary  :INT) ;; _pary #<VBASE :int>
-  (_parent  (:pointer (:struct win))) ;; _parent #<POINTER #<typedef WINDOW>>
-  (_pad  (:struct pdat)) ;; _pad #<struct pdat>
-  (_yoffset  :SHORT) ;; _yoffset #<VBASE :short>
-)
-(export 'win)
 
 
-
-(export '(*COLORS* *COLOR-PAIRS* *LINES* *COLS* *TABSIZE*
-	  *ECSDELAY* *STDSCR* *CURSCR* *NEWSCR*))
 
 (cffi:defcvar ("COLORS" *COLORS* :library libcurses) :int)
 (cffi:defcvar ("COLOR_PAIRS" *COLOR-PAIRS* :library libcurses) :int)
@@ -67,30 +19,27 @@
 (cffi:defcvar ("curscr" *CURSCR* :library libcurses) :pointer)
 (cffi:defcvar ("newscr" *NEWSCR* :library libcurses) :pointer)
 
-(defmacro xdefconst (name value)
-  `(progn
-     (defparameter ,name ,value)
-     (export ',name)))
+(export '(*COLORS* *COLOR-PAIRS* *LINES* *COLS* *TABSIZE*
+	  *ECSDELAY* *STDSCR* *CURSCR* *NEWSCR*))
 
+;; An exported defun
 (defmacro xdefun (name &body body)
   `(progn
      (defun ,name ,@body)
      (export ',name)))
 
+;; An exported defcfun
 (defmacro xdefcfun ((cname lname) &body body)
   `(progn
      (defcfun (,cname ,lname) ,@body)
      (export ',lname)))
 
-
+;; A shortcut for creating a group of exported ncurses functions -
+;; - original function
+;; - w- prefixed function
+;; - unless mv is nil, mv- prefixed functions.
 (defmacro defcurse ((cname lname &key (mv t) (ret :int)) &rest parmlist)
-  #||(let ((parms (loop for p in parmlist
-		  for item = (if (consp p)
-				(car p)
-				p)
-		  collecting item))))
-  ||#
-  (let ((mv-functions
+   (let ((mv-functions
 	 (and mv
 	  `((xdefcfun (,(format nil "mv~A" cname)
 			,(intern (format nil "MV~A" lname))) ,ret
@@ -110,27 +59,7 @@
        (xdefcfun (,(format nil "w~A" cname) ,(intern (format nil "W~A" lname))) ,ret
 		 (win   (:pointer (:struct win))) 
 		 ,@parmlist)
-       ,@mv-functions
-	 
-       ;; define the visible macro
-       #| (defmacro ,lname (,@parms &key win y x)
-       (let* ((_mv (or y x))
-       (sym (find-symbol (format nil "&~A~A~A"
-       (if _mv "MV" "")
-       (if win "W" "")
-       ',lname)))
-       (parms (list ,@parms)))
-
-       (when _mv
-       (unless (and x y)
-       (error "Both y and x must be specified"))
-       (push x parms)
-       (push y parms))
-       (when win
-       (push win parms))
-       `(,sym ,@parms)))
-       (export ',lname)
-       ||#)))
+       ,@mv-functions   )))
 
 
 ;;==============================================================================
@@ -140,15 +69,12 @@
 (xdefcfun ("initscr"  initscr) (:pointer(:struct win)))
 (xdefcfun ("endwin"   endwin) :void)
 (xdefcfun ("isendwin" isendwin) (:BOOL))
-
 (xdefcfun ("newterm" newterm) :pointer ;;screen
 	  (type  :string) 
 	  (outfd :pointer)
 	  (infd  :pointer))  
-
 (xdefcfun ("set_term" set-term) :pointer ;;screen
 	  (screen :pointer))
- 
 (defcfun ("delscreen" delscreen) :VOID
   	  (screen :pointer))
 ;;==============================================================================
@@ -161,26 +87,20 @@
 (xdefcfun ("echo"     echo) :INT)
 (xdefcfun ("noecho"   noecho) :INT)
 (xdefcfun ("halfdelay" halfdelay) :INT
-  (tenths  :INT) ;;  #<VBASE :int>
-)
-
+  (tenths  :INT) )
 (defcfun ("intrflush" intrflush) :INT
-  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (bf    (:BOOL)) ;;  #<VBASE :_Bool>
-)
-
+  (win   (:pointer (:struct win)))
+  (bf    (:BOOL)))
 (xdefcfun ("keypad"    keypad) :INT
-  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (bf    (:BOOL)) ;;  #<VBASE :_Bool>
-)
+  (win   (:pointer (:struct win))) 
+  (bf    (:BOOL)) )
 (xdefcfun ("meta"      meta) :INT
-  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (bf    (:BOOL)) ;;  #<VBASE :_Bool>
-  )
+  (win   (:pointer (:struct win))) 
+  (bf    (:BOOL)) )
 
 (xdefcfun ("nodelay"   nodelay) :INT
-  (win   (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (bf    (:BOOL)) ;;  #<VBASE :_Bool>
+	  (win   (:pointer (:struct win)))
+	  (bf    (:BOOL)) 
 )
 
 (xdefcfun ("raw"       raw) :INT)
@@ -286,18 +206,7 @@
 ;;http://invisible-island.net/ncurses/man/curs_insstr.3x.html
 (defcurse ("insstr"   insstr) (str :string))
 (defcurse ("insnstr"  insnstr) (str :string) (cnt :int))
-;;==============================================================================
-;;http://invisible-island.net/ncurses/man/curs_attr.3x.html
-(xdefconst A-NORMAL     #x00000000)
-(xdefconst A-STANDOUT   #x00010000)
-(xdefconst A-UNDERLINE  #x00020000)
-(xdefconst A-REVERSE    #x00040000)
-(xdefconst A-BLINK      #x00080000)
-(xdefconst A-DIM        #x00100000)
-(xdefconst A-BOLD       #x00200000)
-(xdefconst A-ALTCHARSET #x00400000)
-(xdefconst A-INVIS      #x00800000)
-(xdefconst A-PROTECT    #x01000000)
+
 ;;------------------------------------------------------------------------------;; opts should be null
 (defcurse ("attr_get" attr-get& :mv nil)
   (attrs  (:pointer :ULONG)) 
@@ -715,16 +624,6 @@
 ;;http://invisible-island.net/ncurses/man/legacy_coding.3x.html
 (xdefcfun ("use_legacy_coding" use-legacy-coding) :INT
   (level  :INT))
-;;==============================================================================
-;;http://invisible-island.net/ncurses/man/curs_mouse.3x.html
-(defcstruct mevent ;; _MEVENT
-  (id  :SHORT) ;; id #<VBASE :short>
-  (x  :INT) ;; x #<VBASE :int>
-  (y  :INT) ;; y #<VBASE :int>
-  (z  :INT) ;; z #<VBASE :int>
-  (bstate  :ULONG) ;; bstate #<typedef mmask_t>
-)
-(export 'mevent)
 
 (xdefcfun ("has_mouse" has-mouse) (:BOOL))
 ;;------------------------------------------------------------------------------
@@ -739,10 +638,16 @@
 (defcfun ("ungetmouse" &ungetmouse) :INT
   ;; see: (/usr/include/ncurses.h:1623:32)
   (pmevent  (:pointer (:struct mevent))))
-
+;;------------------------------------------------------------------------------
 (defcfun ("mousemask" &mousemask) :ULONG
   (newmask  :ULONG) ;;  #<typedef mmask_t>
-  (oldmask  (:pointer :ULONG))   )
+  (oldmask  (:pointer :ULONG)))
+(xdefun mousemask (newmask)
+  (with-foreign-object (oldmask :ulong)
+    (&mousemask newmask oldmask)
+    (mem-ref oldmask :ulong)))
+(export 'mousemask)
+;;------------------------------------------------------------------------------
 
 (xdefcfun ("wenclose" wenclose) (:BOOL)
   (win  (:pointer (:struct win))) 
@@ -785,7 +690,7 @@
 	(with-foreign-object (buf :char (1+ cnt))
     (mvinnstr& y x buf cnt)
     (foreign-string-to-lisp buf)))
-(xdefun wmvinnstr (window y x cnt)
+(xdefun mvwinnstr (window y x cnt)
 	(with-foreign-object (buf :char (1+ cnt))
     (mvwinnstr& window y x buf cnt)
     (foreign-string-to-lisp buf)))
@@ -796,15 +701,42 @@
 	(with-foreign-object (buf :ulong (1+ cnt))
 	  (let ((result  (inchnstr& buf cnt)))
 	    (foreign-array-to-lisp buf `(:array :ulong ,cnt)))))
+(xdefun winchnstr (window cnt)
+	(with-foreign-object (buf :ulong (1+ cnt))
+	  (let ((result  (winchnstr& window buf cnt)))
+	    (foreign-array-to-lisp buf `(:array :ulong ,cnt)))))
+(xdefun mvwinchnstr (window y x cnt)
+	(with-foreign-object (buf :ulong (1+ cnt))
+	  (let ((result  (mvwinchnstr& window y x buf cnt)))
+	    (foreign-array-to-lisp buf `(:array :ulong ,cnt)))))
+(xdefun mvinchnstr (y x cnt)
+	(with-foreign-object (buf :ulong (1+ cnt))
+	  (let ((result  (mvinchnstr&  y x buf cnt)))
+	    (foreign-array-to-lisp buf `(:array :ulong ,cnt)))))
 
 ;;==============================================================================
+;; getstr - KBD! -   http://invisible-island.net/ncurses/man/curs_getstr.3x.html
+;;
+;;(defcfun ("getstr" getstr&) :INT (array (:pointer :CHAR)) )
+(defcurse ("getnstr" getnstr&) (buf (:pointer :ulong)) (cnt :int))
+(xdefun getnstr (cnt)
+	(with-foreign-object (buf :ulong cnt)
+	  (let ((result  (getnstr& buf cnt)))
+	    (foreign-string-to-lisp buf :count cnt))))
+(xdefun mvgetnstr (y x cnt)
+	(with-foreign-object (buf :ulong cnt)
+	  (let ((result  (mvgetnstr& y x buf cnt)))
+	    (foreign-string-to-lisp buf :count cnt))))
+(xdefun mvwgetnstr (win y x cnt)
+	(with-foreign-object (buf :ulong cnt)
+	  (let ((result  (mvwgetnstr& win y x buf cnt)))
+	    (foreign-string-to-lisp buf :count cnt))))
+
+(xdefun wgetnstr (win cnt)
+	(with-foreign-object (buf :ulong cnt)
+	  (let ((result  (wgetnstr& win buf cnt)))
+	    (foreign-string-to-lisp buf :count cnt))))
 ;;==============================================================================
-;;==============================================================================
-;;==============================================================================
-;;==============================================================================
-;;==============================================================================
-;;==============================================================================
-;;==============================================================================
 
 
 
@@ -820,115 +752,5 @@
 
 
 
-
-
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:826:28)
-;;
-(declaim (inline &wgetstr))
-(defcfun ("wgetstr" &wgetstr) :INT
-  ;; see: (/usr/include/ncurses.h:826:28)
-  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-)
-(export '&wgetstr)
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:825:28)
-;;
-(declaim (inline &wgetnstr))
-(defcfun ("wgetnstr" &wgetnstr) :INT
-  ;; see: (/usr/include/ncurses.h:825:28)
-  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-  (arg3  :INT) ;;  #<VBASE :int>
-)
-(export '&wgetnstr)
-
-
-
-
-
-;; (/usr/include/ncurses.h:702:28)
-;;
-(declaim (inline &mvwgetstr))
-(defcfun ("mvwgetstr" &mvwgetstr) :INT
-  ;; see: (/usr/include/ncurses.h:702:28)
-  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (arg2  :INT) ;;  #<VBASE :int>
-  (arg3  :INT) ;;  #<VBASE :int>
-  (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-)
-(export '&mvwgetstr)
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:701:28)
-;;
-(declaim (inline &mvwgetnstr))
-(defcfun ("mvwgetnstr" &mvwgetnstr) :INT
-  ;; see: (/usr/include/ncurses.h:701:28)
-  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
-  (arg2  :INT) ;;  #<VBASE :int>
-  (arg3  :INT) ;;  #<VBASE :int>
-  (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-  (arg5  :INT) ;;  #<VBASE :int>
-)
-(export '&mvwgetnstr)
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:678:28)
-;;
-(declaim (inline &mvgetstr))
-(defcfun ("mvgetstr" &mvgetstr) :INT
-  ;; see: (/usr/include/ncurses.h:678:28)
-  (arg1  :INT) ;;  #<VBASE :int>
-  (arg2  :INT) ;;  #<VBASE :int>
-  (arg3  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-)
-(export '&mvgetstr)
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:677:28)
-;;
-(declaim (inline &mvgetnstr))
-(defcfun ("mvgetnstr" &mvgetnstr) :INT
-  ;; see: (/usr/include/ncurses.h:677:28)
-  (arg1  :INT) ;;  #<VBASE :int>
-  (arg2  :INT) ;;  #<VBASE :int>
-  (arg3  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-  (arg4  :INT) ;;  #<VBASE :int>
-)
-(export '&mvgetnstr)
-
-
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:633:28)
-;;
-(declaim (inline &getstr))
-(defcfun ("getstr" &getstr) :INT
-  ;; see: (/usr/include/ncurses.h:633:28)
-  (arg1  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-)
-(export '&getstr)
-
-
-;;------------------------------------------------------------------------------
-;; (/usr/include/ncurses.h:632:28)
-;;
-(declaim (inline &getnstr))
-(defcfun ("getnstr" &getnstr) :INT
-  ;; see: (/usr/include/ncurses.h:632:28)
-  (arg1  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
-  (arg2  :INT) ;;  #<VBASE :int>
-)
-(export '&getnstr)
 
 

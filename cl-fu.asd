@@ -8,5 +8,6 @@
   :depends-on (:cffi)
   :components ((:file "package")
 	       (:file "loadlib")
+	       (:file "include")
 	       (:file "bindings")))
 

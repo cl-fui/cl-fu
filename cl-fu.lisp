@@ -1,6 +1,7 @@
 (in-package #:cl-fu)
 ;;==============================================================================
 ;; (ql:quickload :cl-fu)(in-package :fu)
+;; sbcl --eval "(ql:quickload '(:swank) :silent t)" --eval "(swank:create-server :port 4006 :dont-close t :style :fd-handler )"
 
 (defun refresh ()
   (declare (optimize (speed 3) (space 3) (debug 0)))
@@ -48,3 +49,5 @@
   (move 0 0)
   (refresh)
 )
+
+(in) (t2)

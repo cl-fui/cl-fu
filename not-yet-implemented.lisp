@@ -62,3 +62,82 @@
 )
 (export '&get-escdelay)
 
+
+;;------------------------------------------------------------------------------
+;; (/usr/include/ncurses.h:844:28)
+;;
+(declaim (inline &wscanw))
+(defcfun ("wscanw" &wscanw) :INT
+  ;; see: (/usr/include/ncurses.h:844:28)
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
+)
+(export '&wscanw)
+
+;;------------------------------------------------------------------------------
+;; (/usr/include/ncurses.h:798:28)
+;;
+(declaim (inline &vw-scanw))
+(defcfun ("vw_scanw" &vw-scanw) :INT
+  ;; see: (/usr/include/ncurses.h:798:28)
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
+  (arg3  :POINTER) ;;  #<typedef va_list>
+)
+(export '&vw-scanw)
+
+;;------------------------------------------------------------------------------
+;; (/usr/include/ncurses.h:797:28)
+;;
+(declaim (inline &vwscanw))
+(defcfun ("vwscanw" &vwscanw) :INT
+  ;; see: (/usr/include/ncurses.h:797:28)
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg2  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
+  (arg3  :POINTER) ;;  #<typedef va_list>
+)
+(export '&vwscanw)
+;;------------------------------------------------------------------------------
+;; (/usr/include/ncurses.h:690:28)
+;;
+(declaim (inline &mvscanw))
+(defcfun ("mvscanw" &mvscanw) :INT
+  ;; see: (/usr/include/ncurses.h:690:28)
+  (arg1  :INT) ;;  #<VBASE :int>
+  (arg2  :INT) ;;  #<VBASE :int>
+  (arg3  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
+)
+(export '&mvscanw)
+
+
+
+
+;;------------------------------------------------------------------------------
+;; (/usr/include/ncurses.h:749:28)
+;;
+(declaim (inline &scanw))
+(defcfun ("scanw" &scanw) :INT
+  ;; see: (/usr/include/ncurses.h:749:28)
+  (arg1  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
+)
+(export '&scanw)
+
+;;------------------------------------------------------------------------------
+;; (/usr/include/ncurses.h:715:28)
+;;
+(declaim (inline &mvwscanw))
+(defcfun ("mvwscanw" &mvwscanw) :INT
+  ;; see: (/usr/include/ncurses.h:715:28)
+  (arg1  (:pointer (:struct win))) ;;  #<POINTER #<typedef WINDOW>>
+  (arg2  :INT) ;;  #<VBASE :int>
+  (arg3  :INT) ;;  #<VBASE :int>
+  (arg4  (:pointer :CHAR)) ;;  #<POINTER #<VBASE :char>>
+)
+(export '&mvwscanw)
+
+
+(xdefcfun ("ripoffline" ripoffline) :INT (line  :INT)
+	  (init  :POINTER) ;;  #<VBASE :function-pointer>;; TODO: fix callback
+  )
+
+
