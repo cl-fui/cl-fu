@@ -1,6 +1,6 @@
 (in-package #:cl-fu)
 ;;==============================================================================
-;;
+;; (ql:quickload :cl-fu)(in-package :fu)
 
 (defun refresh ()
   (declare (optimize (speed 3) (space 3) (debug 0)))
@@ -31,14 +31,20 @@
 )
 
 (defun in ()
-  (&initscr)
-  (&raw)
-  (&cbreak )
-  (&keypad *stdscr* 1)
-  (&noecho)
-  (&refresh)
+  (initscr)
+  (raw)
+  (cbreak )
+  (keypad *stdscr* 1)
+  (noecho)
+  (refresh)
   )
 
 (defun out ()
-  (&endwin)
+  (endwin)
   )
+
+(defun t2 ()
+  (printw "Fuck You, Sir!")
+  (move 0 0)
+  (refresh)
+)

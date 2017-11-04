@@ -6,11 +6,8 @@ It provides low-level bindings (function names prefixed with &) as well as a lis
 
 ## Status
 
-Not ready for prime time!  Although not too bad.
-
-Generated bindings, using sbcl "hello world" works
-
-Manually fixed bindings - mouse and input need to be implemented.
+03-Nov-2017 - Active Development...
+Most functions are there, although not particularly well tested.
 
 ## Quick start
 
