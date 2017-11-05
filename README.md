@@ -2,7 +2,9 @@
 
 CL-FU is a Common Lisp CFFI library for NCURSES.
 
-It provides low-level bindings (function names prefixed with &) as well as a lispier interface.
+Package :fu exports ncurses bindings with the usual C-to-Lisp mapping (underscores turn to dashes, etc).
+
+The goal of the project is to provide a reasonably complete interface to NCURSES.
 
 ## Status
 

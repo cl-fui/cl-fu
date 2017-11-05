@@ -2,10 +2,11 @@
 ;;==============================================================================
 ;; (ql:quickload :cl-fu)(in-package :fu)
 ;; sbcl --eval "(ql:quickload '(:swank) :silent t)" --eval "(swank:create-server :port 4006 :dont-close t :style :fd-handler )"
-
-(defun refresh ()
-  (declare (optimize (speed 3) (space 3) (debug 0)))
-   (&refresh))
+#||
+(loop for a from 0 to 255 by 8 do
+	 (loop for aa from a to (+ a 8) do
+	        	 (format t "~A: ~A ~A~&" aa (code-char aa) (char-name (code-char aa)))))
+||#
 (defun test ()
  
   (initscr)
@@ -22,7 +23,7 @@
   (noecho)
   ;;(&nodelay )
   (printw "Type any character and see it in bold\\n")
-  (let ((ch (&getch)))
+  (let ((ch (getch)))
     (print ch)
     (printw "You are-%d--" :int ch)
     (refresh)
@@ -51,3 +52,21 @@
 )
 
 (in) (t2)
+
+
+;;-------------
+(defun make-newwin (h w y x)
+  (let ((n (newwin h w y x)))))
+
+;; in an active environment, run a terminal - that is, accept keyboard input and allow output.
+(defun termstep (win)
+  (let ((ch (wgetch win)))
+    (format t "char is ~A~&" ch)
+    ;; echo
+    (if (< ch 256)
+	(waddch win ch )
+	(print ch))
+    (wrefresh win)
+    )
+  )
+

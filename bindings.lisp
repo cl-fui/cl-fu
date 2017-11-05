@@ -19,6 +19,9 @@
 (cffi:defcvar ("curscr" *CURSCR* :library libcurses) :pointer)
 (cffi:defcvar ("newscr" *NEWSCR* :library libcurses) :pointer)
 
+(cffi:defcvar ("acs_map" *ACS-MAP* :library libcurses) :pointer)
+
+
 (export '(*COLORS* *COLOR-PAIRS* *LINES* *COLS* *TABSIZE*
 	  *ECSDELAY* *STDSCR* *CURSCR* *NEWSCR*))
 
@@ -197,8 +200,8 @@
 	  (win  (:pointer (:struct win)))
 	  (verch :ulong)
 	  (horch :ulong))
-(defcurse ("vline" vline) (ch :ulong))
-(defcurse ("hline" hline) (ch :ulong))
+(defcurse ("vline" vline) (ch :ulong) (cnt :int))
+(defcurse ("hline" hline) (ch :ulong) (cnt :int))
 
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_insch.3x.html
@@ -524,7 +527,7 @@
 (xdefcfun ("flash" flash) :INT)
 ;;==============================================================================
 ;;http://invisible-island.net/ncurses/man/curs_util.3x.html
-(xdefcfun ("keyname" keyname) (:pointer :CHAR)
+(xdefcfun ("keyname" keyname) :string
 	  (key  :INT) )
 (xdefcfun ("filter" filter) :VOID)
 (xdefcfun ("nofilter" nofilter) :VOID)
@@ -643,9 +646,10 @@
   (newmask  :ULONG) ;;  #<typedef mmask_t>
   (oldmask  (:pointer :ULONG)))
 (xdefun mousemask (newmask)
+	"return values oldmask and actual mask"
   (with-foreign-object (oldmask :ulong)
-    (&mousemask newmask oldmask)
-    (mem-ref oldmask :ulong)))
+    (let ((actual (&mousemask newmask oldmask)))
+      (values (mem-ref oldmask :ulong)) actual)))
 (export 'mousemask)
 ;;------------------------------------------------------------------------------
 
