@@ -9,5 +9,6 @@
   :components ((:file "package")
 	       (:file "loadlib")
 	       (:file "include")
-	       (:file "bindings")))
+	       (:file "bindings")
+	       (:file "keys")))
 

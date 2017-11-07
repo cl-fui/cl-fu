@@ -59,14 +59,24 @@
   (let ((n (newwin h w y x)))))
 
 ;; in an active environment, run a terminal - that is, accept keyboard input and allow output.
-(defun termstep (win)
+(defun termstep (&optional (win *stdscr*))
   (let ((ch (wgetch win)))
-    (format t "char is ~A~&" ch)
-    ;; echo
-    (if (< ch 256)
-	(waddch win ch )
-	(print ch))
-    (wrefresh win)
-    )
-  )
+    (format t "char is ~X~&" ch)
+    ;; echo printable characters... TODO: keybindings
+    
+    (if (= ch #.(key "ESC"))
+	nil
+	(if (and (< ch 256)
+		 (graphic-char-p (code-char ch)))
+	    (progn
+	      (waddch win ch)
+	      (print (aref *keytable* ch))
+	      (wrefresh win)
+	      t)
+	    t))))
 
+(defun termloop (&optional (win *stdscr*))
+  (loop
+     while (termstep win)
+      )
+  ())

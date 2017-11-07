@@ -8,7 +8,7 @@ The goal of the project is to provide a reasonably complete interface to NCURSES
 
 ## Status
 
-03-Nov-2017 - Implementation fairly complete - testing.
+06-Nov-2017 - Implementation complete - testing.
 
 ## Notes
 
@@ -18,7 +18,7 @@ The goal of the project is to provide a reasonably complete interface to NCURSES
 
 ## Not Implemented 
 
-While the goal is a full implementation, a decision was made to not implement the following:
+While the goal is a reasonably complete implementation, a decision was made to not bother with:
 
 - Input functions without a count - such as getstr.  Use getnstr, etc.
 - Scan functions - not particularly useful...(priority low)
